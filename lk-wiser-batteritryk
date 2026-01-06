@@ -1,0 +1,118 @@
+blueprint:
+  name: LK Wiser Batteritryk
+  author: Sean Rasmussen
+  description: Lav automationer for LK Wiser trådløs batteritryk 4-knaps som ZHA.
+  domain: automation
+
+  input:
+    zigbee_device:
+      name: Zigbee Device
+      description: LK Wiser batteritryk
+      selector:
+        device:
+          integration: zha
+          manufacturer: Schneider Electric
+
+    top_left_action:
+      name: Top Left Button Action
+      description: Action for øverst venstre knap (endpoint 21, "on")
+      default: []
+      selector:
+        action: {}
+
+    top_right_action:
+      name: Top Right Button Action
+      description: Action for øverst højre knap (endpoint 21, "off")
+      default: []
+      selector:
+        action: {}
+
+    bottom_left_action:
+      name: Bottom Left Button Action
+      description: Action for nederste venstre knap (endpoint 22, "on")
+      default: []
+      selector:
+        action: {}
+
+    bottom_right_action:
+      name: Bottom Right Button Action
+      description: Action for nederste højre knap (endpoint 22, "off")
+      default: []
+      selector:
+        action: {}
+
+    top_left_hold_action:
+      name: Top Left Hold Action
+      description: Hold Action for øverst venstre knap (endpoint 21, "move_with_on_off")
+      default: []
+      selector:
+        action: {}
+
+    bottom_left_hold_action:
+      name: Bottom Left Hold Action
+      description: Hold Action for nederste venstre knap (endpoint 22, "move")
+      default: []
+      selector:
+        action: {}
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input zigbee_device
+
+action:
+  choose:
+
+    # --- TOP LEFT (endpoint 21, "on") ---
+    - conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.event.data.endpoint_id == 21 and trigger.event.data.command == "on" }}
+      sequence: !input top_left_action
+
+    # --- TOP RIGHT (endpoint 21, "off") ---
+    - conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.event.data.endpoint_id == 21 and trigger.event.data.command == "off" }}
+      sequence: !input top_right_action
+
+    # --- BOTTOM LEFT (endpoint 22, "on") ---
+    - conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.event.data.endpoint_id == 22 and trigger.event.data.command == "on" }}
+      sequence: !input bottom_left_action
+
+    # --- BOTTOM RIGHT (endpoint 22, "off") ---
+    - conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.event.data.endpoint_id == 22 and trigger.event.data.command == "off" }}
+      sequence: !input bottom_right_action
+
+    # --- TOP LEFT HOLD (endpoint 21, "move_with_on_off") ---
+    - conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.event.data.endpoint_id == 21 and trigger.event.data.command == "move_with_on_off" }}
+      sequence: !input top_left_hold_action
+
+    # --- BOTTOM LEFT HOLD (endpoint 22, "move") ---
+    - conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.event.data.endpoint_id == 22 and trigger.event.data.command == "move" }}
+      sequence: !input bottom_left_hold_action
+
+  # STOP HANDLING FOR BOTH HOLD ACTIONS
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.event.data.command == "stop" }}
+        sequence: []
