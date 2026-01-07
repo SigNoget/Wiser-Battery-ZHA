@@ -210,8 +210,7 @@ action:
             target:
               entity_id: "{{ v_light }}"
             data:
-              brightness_step: "{{ v_step_up | int }}"
-              transition: "{{ v_transition | float }}"
+              brightness_move: 50 #positiv op
 
       # Nederste højre HOLD: DIM NED (move)
       - conditions:
@@ -223,8 +222,7 @@ action:
             target:
               entity_id: "{{ v_light }}"
             data:
-              brightness_step: "-{{ v_step_down | int }}"
-              transition: "{{ v_transition | float }}"
+              brightness_move: -50 #negativ ned
 
       # SLIP: STOP DIM
       - conditions:
@@ -236,8 +234,7 @@ action:
             target:
               entity_id: "{{ v_light }}"
             data:
-              brightness_step: 0
-              transition: 0
+              brightness_move: 0
 
 
   # Ingen default: andre commands ignoreres
