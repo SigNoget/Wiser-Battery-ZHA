@@ -1,7 +1,7 @@
 blueprint:
   name: LK Wiser 4-knaps – gardin og lys (ZHA)
   description: >
-    Version 0.8: 2026-01-07 07:21  
+    Version 0.8.1: 2026-01-07 07:34  
     Styr gardin med øverste knapper (tryk = kør, tryk igen = stop) og lys med nederste knapper
     (tænd/sluk + hold for dim op/ned) for LK Wiser 4-knaps batteritryk via ZHA.
   domain: automation
@@ -201,41 +201,60 @@ action:
             target:
               entity_id: "{{ v_light }}"
 
-      # Nederste venstre HOLD: DIM OP (move_with_on_off)
+      # Nederste venstre HOLD: DIM OP (endpoint 22 + move_with_on_off)
       - conditions:
           - condition: template
             value_template: >
               {{ v_endpoint == 22 and v_command == 'move_with_on_off' }}
         sequence:
-          - service: light.turn_on
-            target:
-              entity_id: "{{ v_light }}"
-            data:
-              brightness_move: 50 #positiv op
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ wait.trigger is not none }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ v_light }}"
+                  data:
+                    # Lille step op, føles glidende når loopen kører hurtigt
+                    brightness_step: "{{ (v_step_up | int) | default(10) }}"
+                    transition: 0
+                - wait_for_trigger:
+                    - platform: event
+                      event_type: zha_event
+                      event_data:
+                        device_id: !input zigbee_device
+                        endpoint_id: 22
+                        command: "stop"
+                  timeout: "00:00:0.15"
+                  continue_on_timeout: true
 
-      # Nederste højre HOLD: DIM NED (move)
+      # Nederste højre HOLD: DIM NED (endpoint 22 + move)
       - conditions:
           - condition: template
             value_template: >
               {{ v_endpoint == 22 and v_command == 'move' }}
         sequence:
-          - service: light.turn_on
-            target:
-              entity_id: "{{ v_light }}"
-            data:
-              brightness_move: -50 #negativ ned
-
-      # SLIP: STOP DIM
-      - conditions:
-          - condition: template
-            value_template: >
-              {{ v_endpoint == 22 and v_command == 'stop' }}
-        sequence:
-          - service: light.turn_on
-            target:
-              entity_id: "{{ v_light }}"
-            data:
-              brightness_move: 0
-
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ wait.trigger is not none }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ v_light }}"
+                  data:
+                    # Lille step ned (negativ)
+                    brightness_step: "{{ -(v_step_down | int) | default(10) }}"
+                    transition: 0
+                - wait_for_trigger:
+                    - platform: event
+                      event_type: zha_event
+                      event_data:
+                        device_id: !input zigbee_device
+                        endpoint_id: 22
+                        command: "stop"
+                  timeout: "00:00:0.15"
+                  continue_on_timeout: true
 
   # Ingen default: andre commands ignoreres
