@@ -1,17 +1,20 @@
 blueprint:
-  name: LK Wiser 4-knaps – gardin + glidende lysdimming (ZHA)
-  description: >
-    Version 0.8.3: 2026-01-07 07:43 
-    Styr gardin med øverste knapper (tryk = kør, tryk igen = stop)
-    og lys med nederste knapper (tænd/sluk + glidende dim op/ned ved hold).
+  name: LK Wiser Batteritryk (Gardin + Lys) (ZHA)
+  description: |
+    Version: 0.9.2 – 2026-01-07:
+    - Øverste knapper styrer gardin. Kort tryk ÅBN/LUK | Langt tryk STOP.
+    - Nederste knapper styrer lys. Kort tryk TÆND/SLUK | Langt tryk DIM OP/NED.
   domain: automation
   author: SigNoget
-  source_url: https://github.com/SigNoget/HomeAssistant/lk-wiser-batteritryk.yaml
 
   input:
+
+    ############################################################
+    # GENERELT
+    ############################################################
+
     zigbee_device:
-      name: LK Wiser 4-knaps tryk (ZHA)
-      description: Vælg dit LK Wiser batteritryk.
+      name: Wiser Batteritryk 4-slutte
       selector:
         device:
           integration: zha
@@ -19,44 +22,188 @@ blueprint:
 
     cover_entity:
       name: Gardin
-      description: Gardin/cover der styres af de øverste knapper.
       selector:
         entity:
           domain: cover
 
-    light_entity:
-      name: Lys
-      description: Lys der styres af de nederste knapper.
+    light_1:
+      name: Lys 1
       selector:
         entity:
           domain: light
 
-    brightness_step_up:
-      name: Dimming op – step-størrelse
-      description: >
-        Hvor meget lysstyrken ændres pr. loop når der dæmpes op.
-        1–5 giver glidende dimming. 3 anbefales.
+    light_2:
+      name: Lys 2
+      selector:
+        entity:
+          domain: light
+
+    dim_percent:
+      name: Dim – procent
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: box
+
+    dim_transition:
+      name: Transition tid (sekunder)
       default: 3
       selector:
         number:
           min: 1
-          max: 10
+          max: 20
           mode: box
 
-    brightness_step_down:
-      name: Dimming ned – step-størrelse
-      description: >
-        Hvor meget lysstyrken ændres pr. loop når der dæmpes ned.
-        1–5 giver glidende dimming. 3 anbefales.
-      default: 3
+    ############################################################
+    # PERIODE 1 – MORGEN
+    ############################################################
+
+    periode1_header:
+      name: Periode 1
+      description: "Tidsstyret lysniveau – Periode 1"
+      default: "Morgen"
+      selector:
+        text: {}
+
+    time_1:
+      name: Tidspunkt 1
+      default: "06:00"
+      selector:
+        time: {}
+
+    brightness_1:
+      name: Lysstyrke 1 (%)
+      default: 30
       selector:
         number:
           min: 1
-          max: 10
-          mode: box
+          max: 100
+          mode: slider
 
-    debug_mode:
-      name: Debug-log
+    light1_enable_1:
+      name: Lys 1 tændes i periode 1
+      default: true
+      selector:
+        boolean: {}
+
+    light2_enable_1:
+      name: Lys 2 tændes i periode 1
+      default: false
+      selector:
+        boolean: {}
+
+    ############################################################
+    # PERIODE 2 – MIDDAG
+    ############################################################
+
+    periode2_header:
+      name: Periode 2
+      description: "Tidsstyret lysniveau – Periode 2"
+      default: "Middag"
+      selector:
+        text: {}
+
+    time_2:
+      name: Tidspunkt 2
+      default: "12:00"
+      selector:
+        time: {}
+
+    brightness_2:
+      name: Lysstyrke 2 (%)
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: slider
+
+    light1_enable_2:
+      name: Lys 1 tændes i periode 2
+      default: true
+      selector:
+        boolean: {}
+
+    light2_enable_2:
+      name: Lys 2 tændes i periode 2
+      default: true
+      selector:
+        boolean: {}
+
+    ############################################################
+    # PERIODE 3 – EFTERMIDDAG
+    ############################################################
+
+    periode3_header:
+      name: Periode 3
+      description: "Tidsstyret lysniveau – Periode 3"
+      default: "Eftermiddag"
+      selector:
+        text: {}
+
+    time_3:
+      name: Tidspunkt 3
+      default: "18:00"
+      selector:
+        time: {}
+
+    brightness_3:
+      name: Lysstyrke 3 (%)
+      default: 60
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: slider
+
+    light1_enable_3:
+      name: Lys 1 tændes i periode 3
+      default: true
+      selector:
+        boolean: {}
+
+    light2_enable_3:
+      name: Lys 2 tændes i periode 3
+      default: false
+      selector:
+        boolean: {}
+
+    ############################################################
+    # PERIODE 4 – AFTEN
+    ############################################################
+
+    periode4_header:
+      name: Periode 4
+      description: "Tidsstyret lysniveau – Periode 4"
+      default: "Aften"
+      selector:
+        text: {}
+
+    time_4:
+      name: Tidspunkt 4
+      default: "19:00"
+      selector:
+        time: {}
+
+    brightness_4:
+      name: Lysstyrke 4 (%)
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: slider
+
+    light1_enable_4:
+      name: Lys 1 tændes i periode 4
+      default: false
+      selector:
+        boolean: {}
+
+    light2_enable_4:
+      name: Lys 2 tændes i periode 4
       default: false
       selector:
         boolean: {}
@@ -65,16 +212,80 @@ mode: restart
 max_exceeded: silent
 
 variables:
-  v_debug: !input debug_mode
   v_cover: !input cover_entity
-  v_light: !input light_entity
-  v_step_up: !input brightness_step_up
-  v_step_down: !input brightness_step_down
+  v_l1: !input light_1
+  v_l2: !input light_2
+  v_dim: !input dim_percent
+  v_trans: !input dim_transition
 
-  v_command: >
-    {{ trigger.event.data.command if trigger is not none else '' }}
-  v_endpoint: >
-    {{ trigger.event.data.endpoint_id if trigger is not none else 0 }}
+  v_cmd: "{{ trigger.event.data.command }}"
+  v_ep: "{{ trigger.event.data.endpoint_id }}"
+
+  v_now: "{{ now().strftime('%H:%M') }}"
+
+  v_time_1: !input time_1
+  v_time_2: !input time_2
+  v_time_3: !input time_3
+  v_time_4: !input time_4
+
+  v_bri_1: !input brightness_1
+  v_bri_2: !input brightness_2
+  v_bri_3: !input brightness_3
+  v_bri_4: !input brightness_4
+
+  v_l1_e1: !input light1_enable_1
+  v_l1_e2: !input light1_enable_2
+  v_l1_e3: !input light1_enable_3
+  v_l1_e4: !input light1_enable_4
+
+  v_l2_e1: !input light2_enable_1
+  v_l2_e2: !input light2_enable_2
+  v_l2_e3: !input light2_enable_3
+  v_l2_e4: !input light2_enable_4
+
+  v_period: >
+    {% if v_now >= v_time_4 %}
+      4
+    {% elif v_now >= v_time_3 %}
+      3
+    {% elif v_now >= v_time_2 %}
+      2
+    {% else %}
+      1
+    {% endif %}
+
+  v_target_brightness: >
+    {% if v_period == 4 %}
+      {{ v_bri_4 }}
+    {% elif v_period == 3 %}
+      {{ v_bri_3 }}
+    {% elif v_period == 2 %}
+      {{ v_bri_2 }}
+    {% else %}
+      {{ v_bri_1 }}
+    {% endif %}
+
+  v_l1_enabled: >
+    {% if v_period == 4 %}
+      {{ v_l1_e4 }}
+    {% elif v_period == 3 %}
+      {{ v_l1_e3 }}
+    {% elif v_period == 2 %}
+      {{ v_l1_e2 }}
+    {% else %}
+      {{ v_l1_e1 }}
+    {% endif %}
+
+  v_l2_enabled: >
+    {% if v_period == 4 %}
+      {{ v_l2_e4 }}
+    {% elif v_period == 3 %}
+      {{ v_l2_e3 }}
+    {% elif v_period == 2 %}
+      {{ v_l2_e2 }}
+    {% else %}
+      {{ v_l2_e1 }}
+    {% endif %}
 
 trigger:
   - platform: event
@@ -83,164 +294,118 @@ trigger:
       device_id: !input zigbee_device
 
 action:
-  - if:
-      - condition: template
-        value_template: "{{ v_debug }}"
-    then:
-      - service: logbook.log
-        data:
-          name: "LK Wiser 4-knaps"
-          message: >
-            Triggered with endpoint={{ v_endpoint }}, command={{ v_command }},
-            args={{ trigger.event.data.args }}
-          entity_id: "{{ v_light }}"
-
   - choose:
 
-      # ---------------------------------------------------------
-      # ØVERSTE KNAPPER – GARDIN (endpoint 21)
-      # ---------------------------------------------------------
+      ############################################################
+      # GARDIN
+      ############################################################
 
-      # Top venstre: ÅBN / STOP
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 21 and v_command == 'on' }}"
+      - conditions: "{{ v_ep == 21 and v_cmd == 'on' }}"
+        sequence:
+          - service: cover.open_cover
+            target: { entity_id: !input cover_entity }
+
+      - conditions: "{{ v_ep == 21 and v_cmd == 'off' }}"
+        sequence:
+          - service: cover.close_cover
+            target: { entity_id: !input cover_entity }
+
+      - conditions: "{{ v_cmd == 'stop' }}"
+        sequence:
+          - service: cover.stop_cover
+            target: { entity_id: !input cover_entity }
+
+      ############################################################
+      # LYS – TÆND
+      ############################################################
+
+      - conditions: "{{ v_ep == 22 and v_cmd == 'on' }}"
         sequence:
           - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input cover_entity
-                    state: "opening"
+              - conditions: "{{ v_l1_enabled }}"
                 sequence:
-                  - service: cover.stop_cover
-                    target:
-                      entity_id: !input cover_entity
-
-              - conditions:
-                  - condition: state
-                    entity_id: !input cover_entity
-                    state: "closing"
+                  - service: light.turn_on
+                    target: { entity_id: !input light_1 }
+                    data:
+                      brightness_pct: "{{ v_target_brightness }}"
+              - conditions: "{{ v_l2_enabled }}"
                 sequence:
-                  - service: cover.stop_cover
-                    target:
-                      entity_id: !input cover_entity
+                  - service: light.turn_on
+                    target: { entity_id: !input light_2 }
+                    data:
+                      brightness_pct: "{{ v_target_brightness }}"
 
-            default:
-              - service: cover.open_cover
-                target:
-                  entity_id: !input cover_entity
+      ############################################################
+      # LYS – SLUK
+      ############################################################
 
-      # Top højre: LUK / STOP
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 21 and v_command == 'off' }}"
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input cover_entity
-                    state: "opening"
-                sequence:
-                  - service: cover.stop_cover
-                    target:
-                      entity_id: !input cover_entity
-
-              - conditions:
-                  - condition: state
-                    entity_id: !input cover_entity
-                    state: "closing"
-                sequence:
-                  - service: cover.stop_cover
-                    target:
-                      entity_id: !input cover_entity
-
-            default:
-              - service: cover.close_cover
-                target:
-                  entity_id: !input cover_entity
-
-
-      # ---------------------------------------------------------
-      # NEDERSTE KNAPPER – GLIDENDE DIMMING (endpoint 22)
-      # ---------------------------------------------------------
-
-      # TÆND (kort tryk)
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 22 and v_command == 'on' }}"
-        sequence:
-          - service: light.turn_on
-            target: { entity_id: "{{ v_light }}" }
-
-      # SLUK (kort tryk)
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 22 and v_command == 'off' }}"
+      - conditions: "{{ v_ep == 22 and v_cmd == 'off' }}"
         sequence:
           - service: light.turn_off
-            target: { entity_id: "{{ v_light }}" }
+            target:
+              entity_id:
+                - !input light_1
+                - !input light_2
 
-      # DIM OP (hold) – move_with_on_off
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 22 and v_command == 'move_with_on_off' }}"
+      ############################################################
+      # DIM OP
+      ############################################################
+
+      - conditions: "{{ v_ep == 22 and v_cmd == 'move_with_on_off' }}"
         sequence:
-          - repeat:
-              until:
-                - condition: template
-                  value_template: "{{ wait.trigger is not none }}"
-              sequence:
-                - service: light.turn_on
-                  target: { entity_id: "{{ v_light }}" }
-                  data:
-                    brightness_step: "{{ v_step_up | int }}"
-                    transition: 0
-                - wait_for_trigger:
-                    - platform: event
-                      event_type: zha_event
-                      event_data:
-                        device_id: !input zigbee_device
-                        endpoint_id: 22
-                        command: "stop"
-                  timeout: "00:00:0.05"
-                  continue_on_timeout: true
+          - variables:
+              current_pct: >
+                {% set b = state_attr(v_l1, 'brightness') %}
+                {% if b is none %}
+                  0
+                {% else %}
+                  {{ (b | int / 2.55) | round }}
+                {% endif %}
+              target_pct: "{{ [current_pct + v_dim, 100] | min }}"
+          - service: light.turn_on
+            target:
+              entity_id:
+                - !input light_1
+                - !input light_2
+            data:
+              brightness_pct: "{{ target_pct }}"
+              transition: "{{ v_trans }}"
 
-      # DIM NED (hold) – move
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 22 and v_command == 'move' }}"
+      ############################################################
+      # DIM NED
+      ############################################################
+
+      - conditions: "{{ v_ep == 22 and v_cmd == 'move' }}"
         sequence:
-          - repeat:
-              until:
-                - condition: template
-                  value_template: "{{ wait.trigger is not none }}"
-              sequence:
-                - service: light.turn_on
-                  target: { entity_id: "{{ v_light }}" }
-                  data:
-                    brightness_step: "{{ -(v_step_down | int) }}"
-                    transition: 0
-                - wait_for_trigger:
-                    - platform: event
-                      event_type: zha_event
-                      event_data:
-                        device_id: !input zigbee_device
-                        endpoint_id: 22
-                        command: "stop"
-                  timeout: "00:00:0.05"
-                  continue_on_timeout: true
+          - variables:
+              current_pct: >
+                {% set b = state_attr(v_l1, 'brightness') %}
+                {% if b is none %}
+                  100
+                {% else %}
+                  {{ (b | int / 2.55) | round }}
+                {% endif %}
+              target_pct: "{{ [current_pct - v_dim, 1] | max }}"
+          - service: light.turn_on
+            target:
+              entity_id:
+                - !input light_1
+                - !input light_2
+            data:
+              brightness_pct: "{{ target_pct }}"
+              transition: "{{ v_trans }}"
 
+      ############################################################
       # STOP DIM
-      - conditions:
-          - condition: template
-            value_template: "{{ v_endpoint == 22 and v_command == 'stop' }}"
+      ############################################################
+
+      - conditions: "{{ v_ep == 22 and v_cmd == 'stop' }}"
         sequence:
           - service: light.turn_on
-            target: { entity_id: "{{ v_light }}" }
+            target:
+              entity_id:
+                - !input light_1
+                - !input light_2
             data:
-              brightness_step: 0
               transition: 0
 
-# ---------------------------------------------------------
-# Blueprint version: 2026-01-07 07:39
-# ---------------------------------------------------------
