@@ -109,21 +109,26 @@ action:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: "{{ v_cover }}"
+                    entity_id: !input cover_entity
                     state: "opening"
                 sequence:
                   - service: cover.stop_cover
-                    target: { entity_id: "{{ v_cover }}" }
+                    target:
+                      entity_id: !input cover_entity
+
               - conditions:
                   - condition: state
-                    entity_id: "{{ v_cover }}"
+                    entity_id: !input cover_entity
                     state: "closing"
                 sequence:
                   - service: cover.stop_cover
-                    target: { entity_id: "{{ v_cover }}" }
+                    target:
+                      entity_id: !input cover_entity
+
             default:
               - service: cover.open_cover
-                target: { entity_id: "{{ v_cover }}" }
+                target:
+                  entity_id: !input cover_entity
 
       # Top højre: LUK / STOP
       - conditions:
@@ -133,21 +138,27 @@ action:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: "{{ v_cover }}"
+                    entity_id: !input cover_entity
                     state: "opening"
                 sequence:
                   - service: cover.stop_cover
-                    target: { entity_id: "{{ v_cover }}" }
+                    target:
+                      entity_id: !input cover_entity
+
               - conditions:
                   - condition: state
-                    entity_id: "{{ v_cover }}"
+                    entity_id: !input cover_entity
                     state: "closing"
                 sequence:
                   - service: cover.stop_cover
-                    target: { entity_id: "{{ v_cover }}" }
+                    target:
+                      entity_id: !input cover_entity
+
             default:
               - service: cover.close_cover
-                target: { entity_id: "{{ v_cover }}" }
+                target:
+                  entity_id: !input cover_entity
+
 
       # ---------------------------------------------------------
       # NEDERSTE KNAPPER – GLIDENDE DIMMING (endpoint 22)
