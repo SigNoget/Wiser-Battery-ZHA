@@ -200,7 +200,20 @@ action:
             target:
               entity_id: "{{ v_light }}"
 
-      # Nederste venstre HOLD: DIM OP (bruges selvom lyset er slukket)
+      # Nederste venstre HOLD: DIM OP (move_with_on_off)
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ v_endpoint == 22 and v_command == 'move_with_on_off' }}
+        sequence:
+          - service: light.turn_on
+            target:
+              entity_id: "{{ v_light }}"
+            data:
+              brightness_step: "{{ v_step_up | int }}"
+              transition: "{{ v_transition | float }}"
+
+      # Nederste højre HOLD: DIM NED (move)
       - conditions:
           - condition: template
             value_template: >
@@ -210,22 +223,21 @@ action:
             target:
               entity_id: "{{ v_light }}"
             data:
-              brightness_step: "{{ v_step_up | int }}"
+              brightness_step: "-{{ v_step_down | int }}"
               transition: "{{ v_transition | float }}"
 
-      # Nederste knapper SLIP: STOP DIM
-      # Enheden sender 'stop' fra samme endpoint som hold-kommandien.
+      # SLIP: STOP DIM
       - conditions:
           - condition: template
             value_template: >
-              {{ v_command == 'stop' and v_endpoint == 22 }}
+              {{ v_endpoint == 22 and v_command == 'stop' }}
         sequence:
-          # "Stop"-tricket: et neutralt kald der stopper igangværende transition
           - service: light.turn_on
             target:
               entity_id: "{{ v_light }}"
             data:
               brightness_step: 0
               transition: 0
+
 
   # Ingen default: andre commands ignoreres
